@@ -1,0 +1,26 @@
+.list_item {
+    display: flex;
+    align-items: center;
+}
+
+.list_item > img {
+    max-height: 100%;
+    display:inline-block;
+    margin-right: 20px;
+}
+
+.list_item > div {
+    height: 100%;
+    display:inline-block;
+}
+
+nav {
+    top: 0;
+    bottom: 0;
+}
+
+nav > ul {
+    overflow:hidden;
+    overflow-y:scroll;
+    height: 75vh;
+}
