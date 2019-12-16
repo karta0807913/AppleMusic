@@ -26,3 +26,33 @@
 .display_inline {
     display:inline-block;
 }
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: #FF0000;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  width: 100%;
+}
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 10px;
+  background: #4CAF50;
+  cursor: pointer;
+}
+
+.music_text {
+    text-align: center;
+    width: 100%;
+    overflow-x: hidden;
+    white-space: nowrap;
+}

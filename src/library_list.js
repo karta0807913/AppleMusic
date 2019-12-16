@@ -20,14 +20,34 @@ export class LibraryList extends AppleMusicComponent {
         this.load_finish = false;
         this.title = props.title;
         this.from = props.from;
+        this.song_list = [];
     }
 
     music_loaded() {
-        this.load_more_songs();
+        if(this.music.isAuthorized) {
+            this.load_more_songs();
+        }
+        this.music.addEventListener("authorizationStatusDidChange", function() {
+            if(this.music.isAuthorized) {
+                this.load_more_songs();
+            } else {
+                this.load_finish = false;
+                this.setState({ item_list: [], offset: 0 });
+            }
+        });
+
+        this.music.player.addEventListener("playbackStateDidChange", (event)=> {
+            // event.oldState;
+            if(event.state === window.MusicKit.PlaybackStates.completed) {
+                if(this.song_list.length === 0) return;
+                this.music.setQueue({
+                    songs: this.song_list.splice(0, 25)
+                });
+            }
+        });
     }
 
     async load_more_songs() {
-        console.log(this.music.api);
         if(this.songs_lock) return;
         this.songs_lock = this.from(undefined, { limit: 100, offset: this.state.offset });
         var songs = await this.songs_lock;
@@ -55,7 +75,6 @@ export class LibraryList extends AppleMusicComponent {
         await this.music.setQueue({
             song: item.id
         });
-        this.music.play();
     }
 
     async sort(func) {
@@ -71,10 +90,13 @@ export class LibraryList extends AppleMusicComponent {
         for(var item of this.state.item_list) {
             songs.push(item.id);
         }
-        var a = await this.music.setQueue({
-            songs: songs
+        this.song_list = songs;
+        await this.music.setQueue({
+            songs: this.song_list.splice(0, 25)
         });
-        this.music.play();
+    }
+
+    async play_array(array) {
     }
 
     sort_artist(a, b) {

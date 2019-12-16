@@ -32,7 +32,6 @@ export class AppleMusicComponent extends React.Component{
     constructor(props) {
         super(props);
         getInstance().then((music)=> {
-            console.log("A");
             this.music = music;
             this.music_loaded();
         });
