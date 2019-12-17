@@ -9,9 +9,11 @@ import "./music_player.css";
 export class MusicPlayer extends AppleMusicComponent {
     constructor(props) {
         super(props);
+        this.mask_play_state = false;
         this.login_success = false;
         this.stop_update_slider = false;
         this.song_duration = 0;
+        this.native_audio_player = undefined;
         this.state = {
             isPlaying: false,
             login_success: false
@@ -22,20 +24,38 @@ export class MusicPlayer extends AppleMusicComponent {
     music_loaded() {
         this.login();
 
+        this.music.player.volume = 0.1;
+
         this.music.player.addEventListener("mediaItemDidChange", (obj) => {
             this.song_duration = obj.item.playbackDuration / 1000;
             this.setState({item: obj.item});
         });
 
+        this.music.player.addEventListener("mediaCanPlay", (obj) => {
+            this.music.play().then(()=> {
+                this.mask_play_state = false;
+                this.setState({ isPlaying: this.music.player.isPlaying });
+                console.log("AAA");
+            });
+        });
+
         this.music.player.addEventListener("playbackStateDidChange", (...args)=> {
-            this.setState({ isPlaying: this.music.player.isPlaying });
+            if(this.mask_play_state) {
+                this.setState({ isPlaying: false });
+            } else {
+                this.setState({ isPlaying: this.music.player.isPlaying });
+            }
         });
 
         this.music.player.addEventListener("queueItemsDidChange", (obj) => {
+            this.mask_play_state = true;
             this.music.play();
+            this.music.pause();
         });
 
         this.music.addEventListener("playbackDurationDidChange", (event) => {
+            if(this.native_audio_player === event.target) return;
+            this.native_audio_player = event.target;
             event.target.addEventListener("timeupdate", (event)=>{
                 if(this.slider_bar && !this.stop_update_slider) {
                     var target = event.target;
@@ -62,6 +82,7 @@ export class MusicPlayer extends AppleMusicComponent {
     }
 
     play_or_pause() {
+        if(this.mask_play_state) return;
         if(this.music.player.isPlaying) {
             this.music.player.pause();
         } else {
@@ -81,7 +102,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
     bind_slider_event(slider) {
         if(!slider) return;
-        if(this.slider_bar) return;
+        if(this.slider_bar == slider) return;
         this.slider_bar = slider;
         this.slider_bar.value = 0;
         this.slider_bar.addEventListener("change", (event) => {
@@ -94,6 +115,16 @@ export class MusicPlayer extends AppleMusicComponent {
         this.slider_bar.addEventListener("mouseup", ()=> {
             this.stop_update_slider = false;
         });
+    }
+
+    get_controll_icon() {
+        if(this.mask_play_state) {
+            return this.get_feather_icons("loader");
+        }
+        if(!this.state.isPlaying) {
+            return this.get_feather_icons("play");
+        }
+        return this.get_feather_icons("pause");
     }
 
     render() {
@@ -129,7 +160,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
                 <div
             className="display_inline" onClick={()=>this.play_or_pause()}
-            dangerouslySetInnerHTML={ this.state.isPlaying ? this.get_feather_icons("pause") : this.get_feather_icons("play")}
+            dangerouslySetInnerHTML={this.get_controll_icon()}
                 />
 
                 <label className="display_inline" onClick={()=>this.next()} dangerouslySetInnerHTML={this.get_feather_icons("skip-forward")} />
