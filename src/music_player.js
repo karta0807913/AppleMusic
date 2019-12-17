@@ -26,30 +26,58 @@ export class MusicPlayer extends AppleMusicComponent {
 
         this.music.player.volume = 0.1;
 
+        var media_can_play = false;
+
         this.music.player.addEventListener("mediaItemDidChange", (obj) => {
             this.song_duration = obj.item.playbackDuration / 1000;
             this.setState({item: obj.item});
         });
 
+        var previous_src = undefined;
+        var play_promise = undefined;
         this.music.player.addEventListener("mediaCanPlay", (obj) => {
-            this.music.play().then(()=> {
-                this.mask_play_state = false;
-                this.setState({ isPlaying: this.music.player.isPlaying });
-                console.log("AAA");
-            });
+            if(obj.target.src === previous_src) return;
+            previous_src = obj.target.src;
+            media_can_play = true;
+            if(play_promise) {
+                play_promise = undefined;
+            } else {
+                this.music.play();
+            }
+        });
+
+        this.music.player.addEventListener("playbackDurationDidChange", (obj) => {
+            console.log(obj);
         });
 
         this.music.player.addEventListener("playbackStateDidChange", (...args)=> {
             if(this.mask_play_state) {
-                this.setState({ isPlaying: false });
+                if(media_can_play && this.music.player.isPlaying) {
+                    this.mask_play_state = false;
+                    this.setState({ isPlaying: this.music.player.isPlaying });
+                } else {
+                    this.setState({ isPlaying: false });
+                }
             } else {
                 this.setState({ isPlaying: this.music.player.isPlaying });
             }
         });
 
-        this.music.player.addEventListener("queueItemsDidChange", (obj) => {
+        this.music.player.addEventListener("queueItemsDidChange", async (obj) => {
             this.mask_play_state = true;
-            this.music.play();
+            media_can_play = false;
+            play_promise = this.music.play();
+            await play_promise;
+            if(play_promise) {
+                this.music.pause();
+            } else {
+                play_promise = undefined;
+            }
+        });
+
+        this.music.player.addEventListener("queuePositionDidChange", ()=> {
+            this.mask_play_state = true;
+            media_can_play = false;
             this.music.pause();
         });
 
