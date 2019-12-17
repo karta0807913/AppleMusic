@@ -15,12 +15,13 @@ export class LibraryList extends AppleMusicComponent {
     constructor(props) {
         super(props);
         this.ref = React.createRef();
-        this.state = { item_list: [], offset: 0 };
+        this.state = { item_list: []};
         this.songs_lock = undefined;
         this.load_finish = false;
         this.title = props.title;
         this.from = props.from;
         this.song_list = [];
+        this.songs_offset = 0;
     }
 
     music_loaded() {
@@ -32,7 +33,8 @@ export class LibraryList extends AppleMusicComponent {
                 this.load_more_songs();
             } else {
                 this.load_finish = false;
-                this.setState({ item_list: [], offset: 0 });
+                this.setState({ item_list: [] });
+                this.songs_offset = 0;
             }
         });
 
@@ -48,15 +50,24 @@ export class LibraryList extends AppleMusicComponent {
     }
 
     async load_more_songs() {
-        if(this.songs_lock) return;
-        this.songs_lock = this.from(undefined, { limit: 100, offset: this.state.offset });
-        var songs = await this.songs_lock;
-        if(songs.length === 0) {
-            this.load_finish = true;
-            return;
+        this.c += 1;
+        try {
+            while(this.songs_lock) {
+                await this.songs_lock;
+            }
+        } catch(e) {}
+        try {
+            this.songs_lock = this.from(undefined, { limit: 100, offset: this.songs_offset });
+            var songs = await this.songs_lock;
+            this.songs_offset += 100;
+            if(songs.length === 0) {
+                this.load_finish = true;
+                return;
+            }
+            this.setState({ item_list: this.state.item_list.concat(songs) });
+        }finally{
+            this.songs_lock = undefined;
         }
-        this.setState({ item_list: this.state.item_list.concat(songs), offset: this.state.offset + 100 });
-        this.songs_lock = undefined;
     }
 
     async load_all_songs() {

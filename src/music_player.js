@@ -26,7 +26,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
         this.music.player.volume = 0.1;
 
-        var media_can_play = false;
+        this.media_can_play = false;
 
         this.music.player.addEventListener("mediaItemDidChange", (obj) => {
             this.song_duration = obj.item.playbackDuration / 1000;
@@ -38,7 +38,7 @@ export class MusicPlayer extends AppleMusicComponent {
         this.music.player.addEventListener("mediaCanPlay", (obj) => {
             if(obj.target.src === previous_src) return;
             previous_src = obj.target.src;
-            media_can_play = true;
+            this.media_can_play = true;
             if(play_promise) {
                 play_promise = undefined;
             } else {
@@ -52,7 +52,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
         this.music.player.addEventListener("playbackStateDidChange", (...args)=> {
             if(this.mask_play_state) {
-                if(media_can_play && this.music.player.isPlaying) {
+                if(this.media_can_play && this.music.player.isPlaying) {
                     this.mask_play_state = false;
                     this.setState({ isPlaying: this.music.player.isPlaying });
                 } else {
@@ -65,7 +65,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
         this.music.player.addEventListener("queueItemsDidChange", async (obj) => {
             this.mask_play_state = true;
-            media_can_play = false;
+            this.media_can_play = false;
             play_promise = this.music.play();
             await play_promise;
             if(play_promise) {
@@ -77,7 +77,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
         this.music.player.addEventListener("queuePositionDidChange", ()=> {
             this.mask_play_state = true;
-            media_can_play = false;
+            this.media_can_play = false;
             this.music.pause();
         });
 
@@ -133,7 +133,8 @@ export class MusicPlayer extends AppleMusicComponent {
         if(this.slider_bar == slider) return;
         this.slider_bar = slider;
         this.slider_bar.value = 0;
-        this.slider_bar.addEventListener("change", (event) => {
+        this.slider_bar.addEventListener("change", async (event) => {
+            if(this.media_can_play === false) return;
             var target = event.target;
             this.music.seekToTime(parseInt(target.value) / parseInt(target.max) * this.song_duration);
         });
