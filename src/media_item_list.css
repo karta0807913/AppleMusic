@@ -1,0 +1,57 @@
+nav.media_item_list {
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+
+nav.media_item_list > ul {
+    position: absolute;
+    overflow: hidden;
+    overflow-y: auto;
+    top: 0;
+    bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+.list_item {
+    display: flex;
+    align-items: center;
+    transition: 0.7s;
+}
+
+.list_item:hover {
+    background: #d2d2d2;;
+    opacity: 1;
+}
+
+.list_item > span {
+    max-height: 100px;
+    max-width: 100px;
+    display:inline-block;
+    margin-right: 20px;
+    position: relative;
+}
+
+.list_item > span > img {
+    width: 100%;
+    height: 100%;
+}
+
+.list_item > div {
+    height: 100%;
+    display:inline-block;
+    flex: 1;
+}
+
+.item_state_container {
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}

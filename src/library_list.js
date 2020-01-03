@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppleMusicComponent } from "./music_manager.js";
+import { MediaItemList } from "./media_item_list.js";
 
 import "./library_list.css";
 
@@ -11,33 +11,15 @@ function shuffle(array) {
   }
 }
 
-export class LibraryList extends AppleMusicComponent {
+export class LibraryList extends MediaItemList {
     constructor(props) {
         super(props);
-        this.ref = React.createRef();
-        this.state = { item_list: []};
-        this.songs_lock = undefined;
-        this.load_finish = false;
-        this.title = props.title;
         this.from = props.from;
         this.song_list = [];
-        this.songs_offset = 0;
     }
 
     music_loaded() {
-        if(this.music.isAuthorized) {
-            this.load_more_songs();
-        }
-        this.music.addEventListener("authorizationStatusDidChange", function() {
-            if(this.music.isAuthorized) {
-                this.load_more_songs();
-            } else {
-                this.load_finish = false;
-                this.setState({ item_list: [] });
-                this.songs_offset = 0;
-            }
-        });
-
+        super.music_loaded();
         this.music.player.addEventListener("playbackStateDidChange", (event)=> {
             // event.oldState;
             if(event.state === window.MusicKit.PlaybackStates.completed) {
@@ -70,18 +52,6 @@ export class LibraryList extends AppleMusicComponent {
         }
     }
 
-    async load_all_songs() {
-        while(!this.load_finish) {
-            await this.load_more_songs();
-        }
-    }
-
-    scroll() {
-        if(this.ref.current.scrollTop + this.ref.current.offsetHeight >= this.ref.current.scrollHeight) {
-            this.load_more_songs();
-        }
-    }
-
     async select_item(item) {
         await this.music.setQueue({
             song: item.id
@@ -107,9 +77,6 @@ export class LibraryList extends AppleMusicComponent {
         });
     }
 
-    async play_array(array) {
-    }
-
     sort_artist(a, b) {
         if(a.attributes.artistName < b.attributes.artistName) {
             return -1;
@@ -131,50 +98,17 @@ export class LibraryList extends AppleMusicComponent {
     }
 
     render() {
-        var items = [];
-        for (let item of this.state.item_list) {
-            var url = item.attributes.artwork && item.attributes.artwork.url.replace("{w}", "100").replace("{h}", "100");
-            items.push(<li key={item.id} onClick={()=>this.select_item(item)}>
-                       <ListItem
-                       image={url}
-                       title={item.attributes.name}
-                       artist={item.attributes.artistName} />
-                       </li>);
-        }
-        return <div>
-            <h2>{this.title}</h2>
+        var items = super.render();
+        return <div className="library_container">
+            <div className="library_controller_container">
             <button value="" onClick={()=>this.load_all_songs()}>載入全部</button>
             <button value="" onClick={()=>this.sort(this.sort_artist)}>作者排序</button>
             <button value="" onClick={()=>this.sort(this.sort_name)}>名稱排序</button>
             <button value="" onClick={()=>this.play(false)}>播放全部</button>
             <button value="" onClick={()=>this.play(true)}>隨機播放全部</button>
-            <div className="fit">
-            <nav>
-            <ul onScroll={this.scroll.bind(this)} ref={this.ref} >
-            {items}
-            </ul>
-            </nav>
-        </div>
-            </div>;
-    }
-}
-
-class ListItem extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            image: props.image,
-            title: props.title,
-            artist: props.artist
-        };
-    }
-
-    render() {
-        return <div className="list_item">
-            <img src={this.state.image} />
-            <div>
-            <div>{this.state.title}</div>
-            <div>{this.state.artist}</div>
+            </div>
+            <div className="library_list_container">
+            { items }
             </div>
             </div>;
     }

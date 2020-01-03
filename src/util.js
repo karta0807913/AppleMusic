@@ -1,4 +1,5 @@
 import jquery from "jquery";
+import feather from 'feather-icons';
 
 export async function fetch_recommendation() {
     var api = window.MusicKit.getInstance().api;
@@ -16,4 +17,8 @@ export async function fetch_recommendation() {
 
 export async function fetch_library_songs(parm1, parm2) {
     return window.MusicKit.getInstance().api.library.songs(parm1, parm2);
+}
+
+export function get_feather_icons(name, options={}) {
+    return { __html: feather.icons[name].toSvg(options) };
 }

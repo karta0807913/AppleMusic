@@ -1,0 +1,39 @@
+.tab-container {
+    display: flex;
+}
+
+.tab_root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.tab {
+    flex: 1;
+    margin-left: 4px;
+    margin-right: 4px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    border: none;
+    outline: none;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tab-context {
+    display: flex;
+    flex: 1;
+}
+
+.tab:hover {
+    background-color: #ddd;
+}
+
+.tab.active {
+    background-color: #ccc;
+}

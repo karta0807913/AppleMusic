@@ -7,7 +7,6 @@ function getInstance() {
 }
 
 document.addEventListener("musickitloaded", () => {
-    console.log(reslove);
     try {
         reslove(window.MusicKit.getInstance());
     } catch (error) {

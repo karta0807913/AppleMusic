@@ -1,26 +1,25 @@
-.list_item {
+.library_container {
     display: flex;
-    align-items: center;
+    flex: 1;
+    flex-direction: column;
 }
 
-.list_item > img {
-    max-height: 100%;
-    display:inline-block;
-    margin-right: 20px;
+.library_list_container {
+    display: flex;
+    flex: 1;
+    position: relative;
 }
 
-.list_item > div {
-    height: 100%;
-    display:inline-block;
+.library_title {
+    margin-top: 0;
 }
 
-nav {
-    top: 0;
-    bottom: 0;
+.library_controller_container {
+    display: flex;
+    justify-content: center;
+    margin: 5px;
 }
 
-nav > ul {
-    overflow:hidden;
-    overflow-y:scroll;
-    height: 75vh;
+.library_controller_container > button {
+    flex: 1;
 }

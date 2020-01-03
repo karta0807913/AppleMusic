@@ -33,10 +33,12 @@ export class MusicPlayer extends AppleMusicComponent {
             this.setState({item: obj.item});
         });
 
+        var music_player = undefined;
         var previous_src = undefined;
         var play_promise = undefined;
         this.music.player.addEventListener("mediaCanPlay", (obj) => {
             if(obj.target.src === previous_src) return;
+            music_player = obj.target;
             previous_src = obj.target.src;
             this.media_can_play = true;
             if(play_promise) {
@@ -46,16 +48,18 @@ export class MusicPlayer extends AppleMusicComponent {
             }
         });
 
-        this.music.player.addEventListener("playbackDurationDidChange", (obj) => {
+        this.music.player.addEventListener("mediaPlaybackError", (obj) => {
             console.log(obj);
         });
 
-        this.music.player.addEventListener("playbackStateDidChange", (...args)=> {
+        this.music.player.addEventListener("playbackStateDidChange", (events)=> {
             if(this.mask_play_state) {
                 if(this.media_can_play && this.music.player.isPlaying) {
                     this.mask_play_state = false;
                     this.setState({ isPlaying: this.music.player.isPlaying });
+                    music_player && music_player.play();
                 } else {
+                    music_player && music_player.pause();
                     this.setState({ isPlaying: false });
                 }
             } else {
@@ -70,9 +74,8 @@ export class MusicPlayer extends AppleMusicComponent {
             await play_promise;
             if(play_promise) {
                 this.music.pause();
-            } else {
-                play_promise = undefined;
             }
+            play_promise = undefined;
         });
 
         this.music.player.addEventListener("queuePositionDidChange", ()=> {
@@ -130,7 +133,7 @@ export class MusicPlayer extends AppleMusicComponent {
 
     bind_slider_event(slider) {
         if(!slider) return;
-        if(this.slider_bar == slider) return;
+        if(this.slider_bar === slider) return;
         this.slider_bar = slider;
         this.slider_bar.value = 0;
         this.slider_bar.addEventListener("change", async (event) => {
