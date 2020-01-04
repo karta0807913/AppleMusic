@@ -129,7 +129,7 @@ export class MediaItemList extends AppleMusicComponent {
             }
             var ref = this.song_ref_map.get(item_id) || React.createRef();
             this.song_ref_map.set(item_id, ref);
-            items.push(<li key={item.id} onClick={()=>this.select_item(item)}>
+            items.push(<li key={item.id} onClick={(...args)=>this.select_item(item, ...args)}>
                        <ListItem
                        ref={ref}
                        image={url}

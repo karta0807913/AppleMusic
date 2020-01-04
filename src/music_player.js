@@ -169,10 +169,10 @@ export class MusicPlayer extends AppleMusicComponent {
                 <div className="wrap">
                 <img className="fit_img display_inline" src={this.state.item && this.state.item.artworkURL}/>
                 <div className="display_inline" style={{width: "100%"}}>
-                <div className="music_text">
+                <div className="music_text music_title">
                 {this.state.item && this.state.item.attributes.name}
             </div>
-                <div className="music_text">
+                <div className="music_text music_artist">
                 {this.state.item && this.state.item.artistName}
             </div>
                 <input
@@ -195,7 +195,8 @@ export class MusicPlayer extends AppleMusicComponent {
             dangerouslySetInnerHTML={this.get_controll_icon()}
                 />
 
-                <label className="display_inline" onClick={()=>this.next()} dangerouslySetInnerHTML={this.get_feather_icons("skip-forward")} />
+                <label className="display_inline" onClick={()=>this.next()}
+            dangerouslySetInnerHTML={this.get_feather_icons("skip-forward")} />
                 </div>
                 </div>;
         }

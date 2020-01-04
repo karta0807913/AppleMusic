@@ -9,7 +9,16 @@ export class PlayList extends MediaItemList {
 
     music_loaded() {
         super.music_loaded();
-        this.music.addEventListener("queueItemsDidChange", (...args)=> {
+        this.music.addEventListener("queueItemsDidChange", ()=> {
+            if(this._can_reload) {
+                this.reload_songs();
+            } else {
+                this._need_reload = true;
+            }
+        });
+
+        this.music._registry["__queueItemsDidChange"] = this.music._registry["__queueItemsDidChange"] || [];
+        this.music.addEventListener("__queueItemsDidChange", ()=> {
             if(this._can_reload) {
                 this.reload_songs();
             } else {
@@ -31,8 +40,10 @@ export class PlayList extends MediaItemList {
     }
 
     async _load_more_songs() {
-        return this.music.player.queue.items;
+        return this.music.player.queue._items;
     }
 
-    select_item() {}
+    select_item(...args) {
+        console.log(args);
+    }
 }

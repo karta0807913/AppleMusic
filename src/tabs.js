@@ -40,7 +40,6 @@ export class TabContainer extends React.Component {
     }
 
     tab_click(index) {
-        console.log(index);
         this.tabs_ref[this.state.visiable_id].current.setState({ active: false });
         this.contexts_ref[this.state.visiable_id].current.setState({ hidden: true });
         this.setState({ visiable_id: index });

@@ -35,12 +35,71 @@
          top: 0;
          right: 0;
      }
+
+     #show_song_list {
+         display: none;
+     }
+
+     #hide_song_list {
+         display: none;
+     }
+
+     @media screen and (max-width: 800px) {
+        #song_list {
+            position: fixed;
+            backgroud: #FFFFFF;
+            width: 100%;
+            top: 0;
+            right: 0;
+            display: none;
+            z-index: 4;
+        }
+
+         #show_song_list {
+             position: fixed;
+             top: 0;
+             left: 0;
+             display: block;
+             z-index: 5;
+         }
+
+         #hide_song_list {
+             position: fixed;
+             top: 0;
+             left: 0;
+             display: none;
+             z-index: 5;
+         }
+
+         .show_item {
+             display: block !important;
+         }
+
+         .hide_item {
+             display: none !important;
+         }
+     }
     </style>
   </head>
   <body style="margin: 0px">
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <a id="show_song_list">|||</a>
+    <a id="hide_song_list">三</a>
     <div id="recommendations"></div>
     <div id="song_list"></div>
     <div id="music_player"></div>
+    <script>
+     document.getElementById("show_song_list").addEventListener("click", function() {
+         show_song_list.className = "hide_item";
+         hide_song_list.className = "show_item";
+         song_list.className = "show_item";
+     });
+
+     hide_song_list.addEventListener("click", function() {
+         show_song_list.className = "show_item";
+         hide_song_list.className = "hide_item";
+         song_list.className = "hide_item";
+     });
+    </script>
   </body>
 </html>

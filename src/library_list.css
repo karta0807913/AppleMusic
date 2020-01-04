@@ -10,6 +10,35 @@
     position: relative;
 }
 
+.show_controller,
+.hide_controller {
+    display: none;
+    text-align: center;
+}
+
+@media (max-width: 1180px) {
+    .library_controller_container {
+        flex-direction: column;
+    }
+
+    .library_controller_container > button {
+        display: none;
+    }
+
+    .show_controller {
+        display: block;
+    }
+
+    .show_controller:target {
+        display: none;
+    }
+
+    .show_controller:target + .hide_controller,
+    .show_controller:target ~ button {
+        display: block;
+    }
+}
+
 .library_title {
     margin-top: 0;
 }

@@ -20,7 +20,8 @@ export class LibraryList extends MediaItemList {
 
     music_loaded() {
         super.music_loaded();
-        this.music.player.addEventListener("playbackStateDidChange", (event)=> {
+        this.music._registry["__queueItemsDidChange"] = this.music.player._registry["__queueItemsDidChange"] || [];
+        this.music.addEventListener("playbackStateDidChange", (event)=> {
             // event.oldState;
             if(event.state === window.MusicKit.PlaybackStates.completed) {
                 if(this.song_list.length === 0) return;
@@ -28,6 +29,21 @@ export class LibraryList extends MediaItemList {
                     songs: this.song_list.splice(0, 25)
                 });
             }
+        });
+
+        this.music.addEventListener("queueItemsDidChange", async ()=> {
+            while(this.song_list.length !== 0) {
+                var songs = this.song_list.splice(0, 30);
+                var descriptor = await this.music._dataForQueueOptions({ songs: songs });
+                var items = window.MusicKit.Queue.prototype._descriptorToMediaItems(descriptor);
+                this.music.player.queue._itemIDs = this.music.player.queue._itemIDs.concat(songs);
+                this.music.player.queue._items = this.music.player.queue._items.concat(items);
+                console.log(descriptor);
+                // this.music.queue.
+                // this.music.player.queue.append(descriptor);
+            }
+            this.music.dispatchEvent("__queueItemsDidChange");
+            // this.music.setQueue(queue);
         });
     }
 
@@ -73,7 +89,7 @@ export class LibraryList extends MediaItemList {
         }
         this.song_list = songs;
         await this.music.setQueue({
-            songs: this.song_list.splice(0, 25)
+            songs: this.song_list.splice(0, 1)
         });
     }
 
@@ -101,11 +117,13 @@ export class LibraryList extends MediaItemList {
         var items = super.render();
         return <div className="library_container">
             <div className="library_controller_container">
-            <button value="" onClick={()=>this.load_all_songs()}>載入全部</button>
-            <button value="" onClick={()=>this.sort(this.sort_artist)}>作者排序</button>
-            <button value="" onClick={()=>this.sort(this.sort_name)}>名稱排序</button>
-            <button value="" onClick={()=>this.play(false)}>播放全部</button>
-            <button value="" onClick={()=>this.play(true)}>隨機播放全部</button>
+            <a id="show_controller" className="show_controller" href="#show_controller">▼</a>
+            <a id="hide_controller" className="hide_controller" href="#hide_controller">▲</a>
+            <button className="library_controller" value="" onClick={()=>this.load_all_songs()}>載入全部</button>
+            <button className="library_controller" value="" onClick={()=>this.sort(this.sort_artist)}>作者排序</button>
+            <button className="library_controller" value="" onClick={()=>this.sort(this.sort_name)}>名稱排序</button>
+            <button className="library_controller" value="" onClick={()=>this.play(false)}>播放全部</button>
+            <button className="library_controller" value="" onClick={()=>this.play(true)}>隨機播放</button>
             </div>
             <div className="library_list_container">
             { items }
