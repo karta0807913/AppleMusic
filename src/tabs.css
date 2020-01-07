@@ -16,10 +16,6 @@
 
 .tab {
     flex: 1;
-    margin-left: 4px;
-    margin-right: 4px;
-    margin-top: 1px;
-    margin-bottom: 1px;
     border: none;
     outline: none;
     transition: 0.3s;

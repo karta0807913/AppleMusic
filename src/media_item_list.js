@@ -21,13 +21,11 @@ export class MediaItemList extends AppleMusicComponent {
         if(this.music.isAuthorized) {
             this.load_more_songs();
         }
-        this.music.addEventListener("authorizationStatusDidChange", function() {
+        this.music.addEventListener("authorizationStatusDidChange", () => {
             if(this.music.isAuthorized) {
                 this.load_more_songs();
             } else {
-                this.load_finish = false;
-                this.setState({ item_list: [] });
-                this.songs_offset = 0;
+                this.reload_songs();
             }
         });
 
@@ -64,32 +62,36 @@ export class MediaItemList extends AppleMusicComponent {
         this.last_playing = current_item;
     }
 
-    // update_playing_state(media_target) {
-    //     var item = media_target.item;
-    //     if(last_playing && last_playing.current) {
-    //     last_playing.current.setState({ playing: false });
-    //     }
-    //     var current_item = this.song_ref_map.get(obj.item.container.id);
-    //     if(current_item && current_item.current) {
-    //         current_item.current.setState({ playing: true });
-    //     } else {
-    //         this.delay_item_set_playing = current_item;
-    //     }
-    //     last_playing = current_item;
-    // }
-
     componentDidMount() {
     }
 
     reload_songs() {
+        this.load_finish = false;
         this.song_ref_map.clear();
         this.setState({ item_list: [] });
+        this.state.item_list = [];
         this.load_more_songs();
     }
 
     async load_more_songs() {
-        const data = await this._load_more_songs();
-        this.setState({ item_list: data });
+        if(this.load_finish) return;
+        try {
+            while(this.songs_lock) {
+                await this.songs_lock;
+                if(this.load_finish) return;
+            }
+        } catch(e) {}
+        try {
+            this.songs_lock = this._load_more_songs();
+            const data = await this.songs_lock;
+            if(data.length === 0) {
+                this.load_finish = true;
+                return;
+            }
+            this.setState({ item_list: this.state.item_list.concat(data) });
+        } finally {
+            this.songs_lock = undefined;
+        }
     }
 
     // implement and return apple media item
@@ -107,6 +109,8 @@ export class MediaItemList extends AppleMusicComponent {
         throw new Error("please implement this method");
     }
 
+    onContextMenu() {
+    }
 
     scroll() {
         if(this.ref.current.scrollTop + this.ref.current.offsetHeight >= this.ref.current.scrollHeight) {
@@ -129,7 +133,11 @@ export class MediaItemList extends AppleMusicComponent {
             }
             var ref = this.song_ref_map.get(item_id) || React.createRef();
             this.song_ref_map.set(item_id, ref);
-            items.push(<li key={item.id} onClick={(...args)=>this.select_item(item, ...args)}>
+            items.push(<li
+                       key={item.id}
+                       onClick={(...args)=>this.select_item(item, ...args)}
+                       onContextMenu={(...args)=>this.onContextMenu(item, ...args)}
+                       >
                        <ListItem
                        ref={ref}
                        image={url}

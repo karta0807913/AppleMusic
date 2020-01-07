@@ -14,9 +14,12 @@
 .hide_controller {
     display: none;
     text-align: center;
+    text-decoration:none;
+    background: rgba(255,255,255,1);
+    margin: 0;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1330px) {
     .library_controller_container {
         flex-direction: column;
     }
@@ -46,9 +49,14 @@
 .library_controller_container {
     display: flex;
     justify-content: center;
-    margin: 5px;
 }
 
 .library_controller_container > button {
     flex: 1;
+    border: none;
+    transition: 0.3s;
+}
+
+.library_controller_container > button:hover {
+    background-color: #ddd;
 }

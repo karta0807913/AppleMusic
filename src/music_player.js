@@ -124,11 +124,11 @@ export class MusicPlayer extends AppleMusicComponent {
     }
 
     next() {
-        this.music.player.skipToNextItem();
+        this.music.player.skipToNextItem().catch(()=>{});
     }
 
     previous() {
-        this.music.player.skipToPreviousItem();
+        this.music.player.skipToPreviousItem().catch(()=>{});
     }
 
     bind_slider_event(slider) {

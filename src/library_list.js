@@ -32,6 +32,7 @@ export class LibraryList extends MediaItemList {
         });
 
         this.music.addEventListener("queueItemsDidChange", async ()=> {
+            var something_change = this.song_list.length !== 0;
             while(this.song_list.length !== 0) {
                 var songs = this.song_list.splice(0, 30);
                 var descriptor = await this.music._dataForQueueOptions({ songs: songs });
@@ -42,33 +43,31 @@ export class LibraryList extends MediaItemList {
                 // this.music.queue.
                 // this.music.player.queue.append(descriptor);
             }
-            this.music.dispatchEvent("__queueItemsDidChange");
+            something_change && this.music.dispatchEvent("__queueItemsDidChange");
             // this.music.setQueue(queue);
         });
     }
 
-    async load_more_songs() {
-        this.c += 1;
-        try {
-            while(this.songs_lock) {
-                await this.songs_lock;
-            }
-        } catch(e) {}
-        try {
-            this.songs_lock = this.from(undefined, { limit: 100, offset: this.songs_offset });
-            var songs = await this.songs_lock;
-            this.songs_offset += 100;
-            if(songs.length === 0) {
-                this.load_finish = true;
-                return;
-            }
-            this.setState({ item_list: this.state.item_list.concat(songs) });
-        }finally{
-            this.songs_lock = undefined;
-        }
+    async _load_more_songs() {
+        var data = await this.from(undefined, { limit: 100, offset: this.songs_offset });
+        this.songs_offset += 100;
+        return data;
+    }
+
+    reload_songs() {
+        super.reload_songs();
+        this.songs_offset = 0;
     }
 
     async select_item(item) {
+
+        this.song_list = [];
+        shuffle(this.state.item_list);
+        for(var song_item of this.state.item_list) {
+            if(song_item.id === item.id) continue;
+            this.song_list.push(song_item.id);
+        }
+
         await this.music.setQueue({
             song: item.id
         });
@@ -111,6 +110,12 @@ export class LibraryList extends MediaItemList {
             return 0;
         }
         return 1;
+    }
+
+    show_menu(media_list) {
+    }
+
+    componentDidMount() {
     }
 
     render() {

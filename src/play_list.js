@@ -40,10 +40,17 @@ export class PlayList extends MediaItemList {
     }
 
     async _load_more_songs() {
+        if(this.load_finish) return [];
+        this.load_finish = true;
         return this.music.player.queue._items;
     }
 
-    select_item(...args) {
-        console.log(args);
+    select_item(mediaItem) {
+        var index = this.music.player.queue._itemIDs.indexOf(mediaItem.container.id);
+        if(index === -1) return;
+        if(index === this.music.player.queue.position) return;
+        index = index - 1;
+        this.music.player.queue.position = index;
+        this.music.player.skipToNextItem();
     }
 }
