@@ -1,5 +1,6 @@
 import React from 'react';
 import { MediaItemList } from "./media_item_list.js";
+import { fetch_library_songs, recently_added } from "./util.js";
 
 import "./library_list.css";
 
@@ -16,6 +17,11 @@ export class LibraryList extends MediaItemList {
         super(props);
         this.from = props.from;
         this.song_list = [];
+        if(this.from === fetch_library_songs) {
+            this.state.from_info = "全部";
+        } else {
+            this.state.from_info = "最近加入";
+        }
     }
 
     music_loaded() {
@@ -49,22 +55,29 @@ export class LibraryList extends MediaItemList {
     }
 
     async _load_more_songs() {
-        var data = await this.from(undefined, { limit: 100, offset: this.songs_offset });
-        this.songs_offset += 100;
+        let [ offset, data ] = await this.from(undefined, { limit: 100, offset: this.songs_offset });
+        this.songs_offset += offset;
         return data;
     }
 
     reload_songs() {
-        super.reload_songs();
         this.songs_offset = 0;
+        super.reload_songs();
     }
 
     async select_item(item) {
 
         this.song_list = [];
-        shuffle(this.state.item_list);
+        // shuffle(this.state.item_list);
+        let flag = true;
         for(var song_item of this.state.item_list) {
-            if(song_item.id === item.id) continue;
+            if(song_item.id === item.id) {
+                flag = false;
+                continue;
+            }
+            if(flag) {
+                continue;
+            }
             this.song_list.push(song_item.id);
         }
 
@@ -80,10 +93,12 @@ export class LibraryList extends MediaItemList {
 
     async play(want_shuffle=false) {
         var songs=[];
+        let tmp = [ ...this.state.item_list ];
         if(want_shuffle) {
-            shuffle(this.state.item_list);
+            shuffle(tmp);
         }
-        for(var item of this.state.item_list) {
+        console.log(tmp);
+        for(var item of tmp) {
             songs.push(item.id);
         }
         this.song_list = songs;
@@ -124,10 +139,20 @@ export class LibraryList extends MediaItemList {
             <div className="library_controller_container">
             <a id="show_controller" className="show_controller" href="#show_controller">▼</a>
             <a id="hide_controller" className="hide_controller" href="#hide_controller">▲</a>
+            <button className="library_controller" value="" onClick={()=>{
+                if(this.from === fetch_library_songs) {
+                    this.from = recently_added;
+                    this.setState({ from_info: "最近加入" });
+                } else {
+                    this.from = fetch_library_songs;
+                    this.setState({ from_info: "全部" });
+                }
+                this.reload_songs();
+            }} >{ this.state.from_info }</button>
             <button className="library_controller" value="" onClick={()=>this.load_all_songs()}>載入全部</button>
             <button className="library_controller" value="" onClick={()=>this.sort(this.sort_artist)}>作者排序</button>
             <button className="library_controller" value="" onClick={()=>this.sort(this.sort_name)}>名稱排序</button>
-            <button className="library_controller" value="" onClick={()=>this.play(false)}>播放全部</button>
+            {/* <button className="library_controller" value="" onClick={()=>this.play(false)}>播放全部</button> */}
             <button className="library_controller" value="" onClick={()=>this.play(true)}>隨機播放</button>
             </div>
             <div className="library_list_container">

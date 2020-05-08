@@ -4,7 +4,7 @@ import { MusicPlayer }  from './music_player.js';
 import { LibraryList } from "./library_list.js";
 import { MusicInfo } from "./music_info.js";
 import { TabContainer } from "./tabs.js";
-import { fetch_recommendation, fetch_library_songs } from "./util.js";
+import { fetch_recommendation, fetch_library_songs, recently_added } from "./util.js";
 import { PlayList } from "./play_list.js";
 
 import "./index.css";
